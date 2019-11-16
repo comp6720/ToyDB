@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-
 namespace LoginAuth
 {
     class LoginValidator
