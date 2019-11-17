@@ -11,7 +11,6 @@ namespace ServerConnect
         {
             try
             {
-
                 // Establish the remote endpoint for the socket.
                 IPHostEntry ipHost = Dns.GetHostEntry(Dns.GetHostName());
                 IPAddress ipAddr = ipHost.AddressList[0];
