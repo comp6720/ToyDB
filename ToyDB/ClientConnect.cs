@@ -48,17 +48,17 @@ namespace ClientConnect
                 // Manage of Socket's Exceptions 
                 catch (ArgumentNullException ane)
                 {
-                    MessageBox.Show("ArgumentNullException : {0}", ane.ToString());
+                    MessageBox.Show("ArgumentNullException : " + ane.ToString());
                 }
 
                 catch (SocketException se)
                 {
-                    MessageBox.Show("SocketException : {0}", se.ToString());
+                    MessageBox.Show("SocketException : " + se.ToString());
                 }
 
                 catch (Exception e)
                 {
-                    MessageBox.Show("Unexpected exception : {0}", e.ToString());
+                    MessageBox.Show("Unexpected exception : " + e.ToString());
                 }
             }
 
