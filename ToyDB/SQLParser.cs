@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 namespace ToyDB
 {
     public class SQLParser
-    {     
+    {
+        
         public static void SqlRouteCommand(String sqlStatement)
         {
+            DatabaseOperations db = new DatabaseOperations();
             Object returnedObject = null;
             //  XmlOperations xml_ops = new XmlOperations();
             String[] crud = sqlStatement.Split(' ');
@@ -90,27 +92,33 @@ namespace ToyDB
                     }
                     else if (createType.ToLower().Equals("table"))
                     {
-                        String fields_string = sqlStatement.Split(new string[] {"on"}, StringSplitOptions.None)[1].Trim();
+                        String fields_string = sqlStatement.Split(new string[] {"\\("}, StringSplitOptions.None)[1].Trim();
                         returnedObject = (name, fields_string);
                     }
                     else if (createType.ToLower().Equals("database"))
                     {
-                        returnedObject =(name);
+                        returnedObject = db.CreateDatabase(name);
                     }
 
                     break;
                 case "use":
-                    returnedObject =(createType);
+                         returnedObject = db.UseDatabase(createType);
                     break;
 
                 case "drop":
-                   
+                    if (createType.ToLower().Equals("database"))
+                    {
+                        String databaseName = sqlStatement.Split(' ')[2];                  
+
+                        returnedObject = db.DropDatabase(databaseName);
+                    }
+
                     break;
 
                 default:
                     // "not amount the valid possibilies";
                     break;
-                    break;
+                  
             }
             //return returnedObject;
         }

@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientConnect.cs" />
-    <Compile Include="DatabaseController.cs" />
+    <Compile Include="DatabaseOperations.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
