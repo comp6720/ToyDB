@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClientConnect;
 
 namespace ToyDB
 {
@@ -28,9 +29,6 @@ namespace ToyDB
 
         }
 
-      
-
-
         private void button1_Click(object sender, EventArgs e)
         {
             //define local variables from the user inputs 
@@ -38,11 +36,21 @@ namespace ToyDB
             string pass = pwdtxtbox.Text;
 
             LoginAuth.LoginValidator login = new LoginAuth.LoginValidator(user, pass);
+
             //check if eligible to be logged in 
             if (login.IsLoggedIn(user, pass))
             {
+                Client client = new Client();
+                client.ExecuteClient();
+
                 MessageBox.Show("You are logged in successfully");
+
+                TOYODB obj1 = new TOYODB();
+                Login obj2 = new Login();
+                this.Hide();
+                obj1.Show();
             }
+
             else
             {
                 //show default login error message 
@@ -62,13 +70,14 @@ namespace ToyDB
             MessageBox.Show("Under development");
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        /*private void button1_Click_1(object sender, EventArgs e)
         {
             //define local variables from the user inputs 
             string user = nametxtbox.Text;
             string pass = pwdtxtbox.Text;
 
             LoginAuth.LoginValidator login = new LoginAuth.LoginValidator(user, pass);
+
             //check if eligible to be logged in 
             if (login.IsLoggedIn(user, pass))
             {
@@ -77,16 +86,15 @@ namespace ToyDB
                 TOYODB obj1 = new TOYODB();
                 Login obj2 = new Login();
                 this.Hide();
-                obj1.Show();
-                
+                obj1.Show(); 
             }
             else
             {
                 //show default login error message 
                 MessageBox.Show("Login Error!");
             }
-
         }
+        */
 
         private void Login_Load(object sender, EventArgs e)
         {
