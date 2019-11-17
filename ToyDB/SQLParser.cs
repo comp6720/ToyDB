@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 namespace ToyDB
 {
     public class SQLParser
-    {
-     
+    {     
         public static void SqlRouteCommand(String sqlStatement)
         {
             Object returnedObject = null;
@@ -46,7 +45,7 @@ namespace ToyDB
                     String fieldsString = fieldsStringWithSelect.Replace("select", "");
                     if (sqlStatement.Contains("where"))
                     {
-                        String whereString = sqlStatement.Split(new string[] { "where" }, StringSplitOptions.None)[1].Trim();
+                        String whereString = sqlStatement.Split(new string[] {"where" }, StringSplitOptions.None)[1].Trim();
                         tableName = tableName.Split(' ')[0];
                         returnedObject = (tableName, fieldsString, (whereString));
                     }
@@ -62,11 +61,11 @@ namespace ToyDB
                     break;
                 case "update":
                     String tableName1 = sqlStatement.Split(' ')[1].Trim();
-                    String takeSetString = sqlStatement.Split(new string[] { "set" }, StringSplitOptions.None)[1].Trim();
+                    String takeSetString = sqlStatement.Split(new string[] {"set"}, StringSplitOptions.None)[1].Trim();
                     if (sqlStatement.Contains("where"))
                     {
-                        String setString = takeSetString.Split(new string[] { "where" }, StringSplitOptions.None)[0].Trim();
-                        String whereString1 = sqlStatement.Split(new string[] { "where" }, StringSplitOptions.None)[1].Trim();
+                        String setString = takeSetString.Split(new string[] {"where"}, StringSplitOptions.None)[0].Trim();
+                        String whereString1 = sqlStatement.Split(new string[] {"where"}, StringSplitOptions.None)[1].Trim();
                         returnedObject = (tableName1, setString, (whereString1));
                     }
                     else
@@ -80,7 +79,7 @@ namespace ToyDB
                     if (createType.ToLower().Equals("index"))
                     {
                         // CREATE INDEX ON indexName Employee(eid)
-                        String stringWithIndexName = sqlStatement.Split(new string[] { "on" }, StringSplitOptions.None)[1].Trim();
+                        String stringWithIndexName = sqlStatement.Split(new string[] {"on"}, StringSplitOptions.None)[1].Trim();
                         String[] indexNameTableField = stringWithIndexName.Split(' ');
                         String indexName = indexNameTableField[0].Trim();
                         String[] nameTableField = indexNameTableField[0].Split(new string[] { "\\\\(" }, StringSplitOptions.None);
@@ -91,7 +90,7 @@ namespace ToyDB
                     }
                     else if (createType.ToLower().Equals("table"))
                     {
-                        String fields_string = sqlStatement.Split(new string[] { "on" }, StringSplitOptions.None)[1].Trim();
+                        String fields_string = sqlStatement.Split(new string[] {"on"}, StringSplitOptions.None)[1].Trim();
                         returnedObject = (name, fields_string);
                     }
                     else if (createType.ToLower().Equals("database"))
