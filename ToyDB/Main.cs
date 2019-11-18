@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClientConnect;
 
 namespace ToyDB
 {
@@ -25,8 +26,13 @@ namespace ToyDB
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string statement = sqlStatement.Text;
-            SQLParser.SqlRouteCommand(statement);
+            String statement = sqlStatement.Text;
+
+            Client client = new Client();
+            client.ConnectSocket(11111);
+            client.SendQuery(statement);
+            
+            //SQLParser.SqlRouteCommand(statement);
         }
     }
 }

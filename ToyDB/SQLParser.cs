@@ -110,7 +110,6 @@ namespace ToyDB
                 default:
                     // "not amount the valid possibilies";
                     break;
-                    break;
             }
             //return returnedObject;
         }
