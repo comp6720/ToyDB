@@ -31,8 +31,8 @@ namespace ToyDB
             Client client = new Client();
             client.ConnectSocket(11111);
             client.SendQuery(statement);
-            
-            //SQLParser.SqlRouteCommand(statement);
+
+            MessageBox.Show("SQL command executed");
         }
     }
 }
