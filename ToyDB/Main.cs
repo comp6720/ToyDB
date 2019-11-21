@@ -27,7 +27,7 @@ namespace ToyDB
         private void button1_Click(object sender, EventArgs e)
         {
             String statement = sqlStatement.Text;
-
+            SQLParser.SqlRouteCommand(statement);
             Client client = new Client();
             client.ConnectSocket(11111);
             client.SendQuery(statement);

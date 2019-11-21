@@ -26,7 +26,7 @@ namespace ClientConnect
         public void SendQuery(String query)
         {
             // Check if socket connection has been established
-            if (connected == true)
+            if (connected == false)
             {
                 try
                 {
@@ -61,7 +61,6 @@ namespace ClientConnect
                 MessageBox.Show("Not connected to database server.");
             }
         }
-
 
         /**
          * Receive results from the server

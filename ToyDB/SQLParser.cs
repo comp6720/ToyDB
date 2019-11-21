@@ -92,8 +92,8 @@ namespace ToyDB
                     }
                     else if (createType.ToLower().Equals("table"))
                     {
-                        String fields_string = sqlStatement.Split(new string[] {"\\("}, StringSplitOptions.None)[1].Trim();
-                        returnedObject = (name, fields_string);
+                        String fields_string = sqlStatement.Split(new string[] {"("}, StringSplitOptions.None)[1].Trim();
+                        returnedObject = db.CreateTable(name, fields_string);
                     }
                     else if (createType.ToLower().Equals("database"))
                     {

@@ -23,36 +23,31 @@ namespace ToyDB
             this.databasePath = databasePath;
         }
 
-        public string @Location { get; set; }
+        public string @databaseLocation { get; set; }
 
-        String dLocation = @"C:\Users\ot5848\source\repos\ToyDB\ToyDB\ToyDBServer\Databases";
+        String dbPath = @"C:\Users\ot5848\source\repos\ToyDB\ToyDB\ToyDBServer\Databases\";
         //The name of the database
         public string DatabaseName { get; set; }
 
         //Checks whether or not the input database location and name already exists
         public bool databaseAlreadyExists = false;
 
-        /**
-         * Create a new database folder
-         *
-         * @param string databaseName - The name of the database.
-         *
-         * @return void
-        **/
+       
         public String CreateDatabase(string databaseName)
         {
             //Set the DatabaseName property to the value passed in the parameter
             DatabaseName = databaseName;
 
             //The location where the database will be stored
-            string path = dLocation + "\\" + DatabaseName;
+            @databaseLocation = dbPath + "\\" + DatabaseName;
 
             //Create the database folder if it does not exist
-            if (!Directory.Exists(path))
+            if (!Directory.Exists(@databaseLocation))
             {
-                Path.GetFullPath(path);
-                Directory.CreateDirectory(path);
-
+                Path.GetFullPath(@databaseLocation);
+                Directory.CreateDirectory(@databaseLocation);
+                Directory.CreateDirectory(@databaseLocation + "/indexes");
+                Directory.CreateDirectory(@databaseLocation + "/sysdb");
                 MessageBox.Show("Database successfully created.");
             }
 
@@ -60,26 +55,33 @@ namespace ToyDB
             else
             {
                 databaseAlreadyExists = true;
-                MessageBox.Show("Error! That folder already exists.\n");
+                MessageBox.Show("Error! database already exists.\n");
             }
             return "test";
         }
 
-        /**
-            * Navigates to the specified database folder
-        * @param string databaseName - The name of the database.
-        *
-        * @return void
-           *
-        **/
+       
         public String UseDatabase(string databaseName)
         {
-            //The location of the database to use
-            string path = dLocation + "\\" + databaseName;
+            //The location of the database to use       
+            String useDBPath = dbPath + "useDB.txt";
+            @databaseLocation = databaseName;
+           
+            if (File.Exists(@useDBPath))
+            {
+                File.Delete(@useDBPath);
+            }
 
             try
             {
-                Directory.SetCurrentDirectory(path);
+                using (FileStream fs = File.Create(useDBPath))
+                {                   
+                    byte[] info = new UTF8Encoding(true).GetBytes(databaseName);
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                }
+
+                Directory.SetCurrentDirectory(dbPath);
                 Console.WriteLine("Using database '{0}'", databaseName);
             }
 
@@ -90,11 +92,36 @@ namespace ToyDB
             return "test";
         }
 
+        public String getDatabaseName()
+        {
+            String useDBPath = dbPath+"useDB.txt";
+            String result = "";
+            try
+            {
+                // File.OpenRead("textfile.txt");
+                string[] lines = File.ReadAllLines(useDBPath);
+                foreach (string line in lines)
+                {
+                    result = line;
+                }
+            }
+            catch (FileNotFoundException e)
+            {
+                // TODO Auto-generated catch block
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+            }
+            finally
+            {                
+
+            }
+            return result;
+        }
         public Object DropDatabase(String database)
         {
-           String path = dLocation + "\\" + database;
-            
-            //File file = new File(database);
+            String path = dbPath + "\\" + database;           
             String returnString = "";
             if (path.Contains(database))
             {
@@ -105,24 +132,26 @@ namespace ToyDB
                 }
                 //call delete to delete files and empty directory
                 var dir = new DirectoryInfo(path);
+                //drop database
                 dir.Delete(true);
 
             }
             returnString = "database " + database + " dropped";
 
             return returnString;
-        }
-        public String CreateTable(String tableName, String fields)
+        }    
+
+        public String CreateTable(String tableName, String fields) 
         {
-            String returnString = "";
-            //String useDB = getDatabaseName();
-            ////TableOperations to = new TableOperations();
-            //to.addTableNameToSysTable(useDB, tableName);
-            //to.createColumns(useDB, tableName, fields);
-            //to.reserveSectorForTable(useDB, tableName);
-            //returnString = "table " + tableName + " was successfully created";
-            return returnString;
-        }
+		    String returnString = "";
+		    String useDB = getDatabaseName();
+		    TableController tc = new TableController();
+		    tc.AddTableName(useDB, tableName);
+		    tc.CreateColumns(useDB, tableName, fields);
+		    tc.reserveSectorForTable(useDB, tableName);
+		    returnString = "table " + tableName + " was successfully created";
+		    return returnString;
+	    }
 
     } 
 }
