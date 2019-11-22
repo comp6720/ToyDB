@@ -58,8 +58,8 @@ namespace ToyDB
 
                     break;
                 case "insert":
-                    String valuesString = sqlStatement.Replace(")", "").Split(new string[] {"\\\\("}, StringSplitOptions.None)[1].Trim();
-                    returnedObject = (name, valuesString);
+                    String valuesString = sqlStatement.Replace(")", "").Split(new string[] {"("}, StringSplitOptions.None)[1].Trim();
+                    returnedObject = db.InsertIntoTable(name, valuesString);
                     break;
                 case "update":
                     String tableName1 = sqlStatement.Split(' ')[1].Trim();

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,6 +51,8 @@ namespace ToyDB
                 Directory.CreateDirectory(@databaseLocation);
                 Directory.CreateDirectory(@databaseLocation + "/indexes");
                 Directory.CreateDirectory(@databaseLocation + "/sysdb");
+                CreateSystable();
+                CreateColumns();
                 MessageBox.Show("Database successfully created.");
             }
 
@@ -76,7 +81,7 @@ namespace ToyDB
             {
                 using (FileStream fs = File.Create(useDBPath))
                 {                   
-                    byte[] info = new UTF8Encoding(true).GetBytes(databaseName);
+                     byte[] info = new UTF8Encoding(true).GetBytes(databaseName);
                     // Add some information to the file.
                     fs.Write(info, 0, info.Length);
                 }
@@ -146,13 +151,132 @@ namespace ToyDB
 		    String returnString = "";
 		    String useDB = getDatabaseName();
 		    TableController tc = new TableController();
-		    tc.AddTableName(useDB, tableName);
-		    tc.CreateColumns(useDB, tableName, fields);
-		    tc.reserveSectorForTable(useDB, tableName);
+		    tc.AddTableName(dbPath,useDB, tableName);
+		    tc.CreateColumns(dbPath,useDB, tableName, fields);
+		    tc.ReserveSectorForTable(dbPath,useDB, tableName);
 		    returnString = "table " + tableName + " was successfully created";
 		    return returnString;
 	    }
 
-    } 
-}
+        public void CreateSystable()
+        {
+            SysTables st = new SysTables();
+            IFormatter formatter = new BinaryFormatter();
+            String path = @databaseLocation + "/Sysdb/systable.obj";
+
+            IFormatter ibin = new BinaryFormatter();// create the binary formatter
+
+            Stream strobj = new FileStream(@path, //file location
+
+            FileMode.Create, // create folder
+
+            FileAccess.Write, // write the file
+
+            FileShare.None);
+
+            ibin.Serialize(strobj, st); //written to the file
+
+            strobj.Close();
+        }
+
+        public void CreateColumns()
+        {
+            SysColumns st = new SysColumns();
+            IFormatter formatter = new BinaryFormatter();
+            String path = @databaseLocation + "/Sysdb/syscolumns.obj";
+
+            IFormatter ibin = new BinaryFormatter();// create the binary formatter
+
+            Stream strobj = new FileStream(@path, //file location
+
+            FileMode.Create, // create folder
+
+            FileAccess.Write, // write the file
+
+            FileShare.None);
+
+            ibin.Serialize(strobj, st); //written to the file
+
+            strobj.Close();
+        }
+
+        public String InsertIntoTable(String tableName, String valuesString)
+        {
+            String returnString = "";
+            String useDB = getDatabaseName();
+            TableController to = new TableController();
+            IFormatter formatter = new BinaryFormatter();
+            int currentBlockSize = (to.GetBlock(dbPath, useDB, tableName).Count);
+            int lastBlockID = 0;
+            if (currentBlockSize < 1)
+            {
+                lastBlockID = (to.GetBlock(dbPath,useDB, tableName).Count);
+            }
+            else
+            {
+                lastBlockID = (to.GetBlock(dbPath, useDB, tableName).Count) - 1;
+            }
+            String filePath =dbPath+ useDB + "/" + tableName + "/" + lastBlockID + ".obj";
+            TableStructure ts = new TableStructure();
+            String[] valuesList = valuesString.Split(',');
+            ArrayList valuesArray = new ArrayList();
+            
+            try
+            {
+                Stream stream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+
+                if (stream.Length != 0)
+                {
+                    if (File.Exists(filePath))
+                    {
+
+                        ts = (TableStructure)(formatter.Deserialize(stream));
+
+                        Console.WriteLine(ts);
+                        //stream.Close();
+                    }
+                }
+                stream.Close();
+                foreach (String value in valuesList)
+                {
+                    valuesArray.Add(value.Trim().Replace("'", "").Trim());
+                }
+
+                ts.table.Add(valuesArray);       
+                /**
+                 * check if block contains maximum number of elements if it does
+                 * create a data block by incrementing lastDatablock id by one
+                 * otherwise write to the current data block
+                 */
+                if ((ts.table.Count-1) == 5)
+                {
+                    ts.table.Clear();
+                    ts.table.Add(valuesArray);
+                    int nextBlockID = lastBlockID + 1;
+                    filePath = dbPath + useDB + "/" + tableName + "/" + nextBlockID + ".obj";
+                }
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                stream = new FileStream(filePath, FileMode.Create,FileAccess.Write);
+                formatter.Serialize(stream, ts);
+                stream.Close();
+
+                returnString = "1 record was inserted";
+
+            }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.Message.ToString();
+            }
+
+            return returnString;
+
+            }
+
+
+        }
+    }
 

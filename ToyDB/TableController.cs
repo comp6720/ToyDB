@@ -12,27 +12,21 @@ namespace ToyDB
 {
     class TableController
     {
-        public void AddTableName(String database, String tableName)
+        public void AddTableName(String dbPath,String database, String tableName)
         {
             SysTables st = new SysTables();
             IFormatter formatter = new BinaryFormatter();
-            String path = @"C:\Users\ot5848\source\repos\ToyDB\ToyDB\ToyDBServer\Databases\"+ database +"/ sysdb/systable.ser";           
-            using (FileStream fs = File.Create(path))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(database);
-                // Add some information to the file.
-                fs.Write(info, 0, info.Length);
-            }
-            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            //String path = database+"/sysdb/systable.ser";
+            String path = dbPath+database + "/Sysdb/systable.obj";
 
+            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             try
             {
                 if (File.Exists(path))
                 {
                     st = (SysTables)(formatter.Deserialize(stream));
-
+                    
                     Console.WriteLine(st);
+                    stream.Close();
                 }
                 st.sys_table.Add(tableName);
 
@@ -41,7 +35,6 @@ namespace ToyDB
                 {
                     File.Delete(path);
                 }
-
                 //IFormatter formatter = new BinaryFormatter();
                 stream = new FileStream(path, FileMode.Create, FileAccess.Write);
                 formatter.Serialize(stream, st);
@@ -51,14 +44,13 @@ namespace ToyDB
             {
 
             }
-
         }
-        public void CreateColumns(String database, String tableName, String fields)
+        public void CreateColumns(String dbPath, String database, String tableName, String fields)
         {
             IFormatter formatter = new BinaryFormatter();
             SysColumns sc = new SysColumns();
             String[] fieldslist = fields.Replace(")", "").Split(',');
-            String path = database + "/sysdb/syscolumns.ser/";
+            String path = dbPath + database + "/sysdb/syscolumns.obj";
             Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             try
             {
@@ -66,6 +58,7 @@ namespace ToyDB
                 {
                     sc = (SysColumns)(formatter.Deserialize(stream));
                     Console.WriteLine(sc);
+                    stream.Close();
                 }
                 foreach (String field in fieldslist)
                 {
@@ -100,23 +93,17 @@ namespace ToyDB
         }
 
         // reserve area to store i.e. sector to store blocks containing 5 records
-        public void reserveSectorForTable(String databaseName, String sectorName)
+        public void ReserveSectorForTable(String dbPath, String databaseName, String sectorName)
         {
             TableStructure ts = new TableStructure();
-            String path = databaseName + "/" + sectorName;
-            IFormatter formatter = new BinaryFormatter();
-            var dir = new DirectoryInfo(path);
-            //drop database
-            dir.Delete(true);
+            String path = dbPath + databaseName + "/" + sectorName;          
             Directory.CreateDirectory(path);
+            IFormatter formatter = new BinaryFormatter();
             try
             {
-                if (File.Exists(path))
-                {
-                    Stream stream = new FileStream(path + 0 + ".ser", FileMode.Create, FileAccess.Write);
-                    formatter.Serialize(stream, ts);
-                    stream.Close();
-                }
+              Stream stream = new FileStream(path +"/"+ 0 + ".obj", FileMode.Create, FileAccess.Write);
+              formatter.Serialize(stream, ts);
+              stream.Close();
             }
             catch (IOException i)
             {
@@ -142,11 +129,28 @@ namespace ToyDB
             catch (IOException)
             {
 
-                return validTable;
+             return validTable;
 
             }
             return validTable;
 
+        }
+
+        public ArrayList GetBlock(String dbPath,String databaseName, String tableName)
+        {
+            String path = dbPath + databaseName + "/" + tableName;
+            ArrayList blockIDs = new ArrayList();
+           // string[] filePaths = Directory.GetFiles(@"c:\MyDir\");
+           // File[] files = new File(databaseName + "/" + tableName).listFiles();
+          
+            foreach (string FileFound in Directory.GetFiles(path))
+            {
+                string blockName = (Path.GetFileName(FileFound)).Split(new string[] { "\\." }, StringSplitOptions.None)[0].Trim();             
+                int blockID = Int32.Parse(blockName.Split('.')[0].Trim());
+                blockIDs.Add(blockID);                
+            }
+            blockIDs.Sort(null);
+            return blockIDs;
         }
     }
 }

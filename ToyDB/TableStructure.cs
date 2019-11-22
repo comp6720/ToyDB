@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ToyDB
 {
+    [Serializable]
     class TableStructure
     {
-        private static long serialVersionUID = 1L;
         public ArrayList table = new ArrayList();
 
     }

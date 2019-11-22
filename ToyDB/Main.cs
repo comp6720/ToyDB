@@ -29,8 +29,8 @@ namespace ToyDB
             String statement = sqlStatement.Text;
             SQLParser.SqlRouteCommand(statement);
             Client client = new Client();
-            client.ConnectSocket(11111);
-            client.SendQuery(statement);
+           //client.ConnectSocket(11111);
+            //client.SendQuery(statement);
 
             MessageBox.Show("SQL command executed");
         }
