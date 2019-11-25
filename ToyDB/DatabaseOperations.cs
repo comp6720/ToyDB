@@ -362,8 +362,8 @@ namespace ToyDB
         {
             String useDB = getDatabaseName();
             IFormatter formatter = new BinaryFormatter();
-            TableController to = new TableController();          
-          // IndexStructure ix = null;
+            TableController to = new TableController();
+            // IndexStructure ix = null;
             TableStructure ts = null;
             // TableOperations to = new TableOperations();
             List<String> whereItemField = new List<string>();
@@ -379,14 +379,14 @@ namespace ToyDB
                 String[] whereFieldsArray = new String[whereItemField.Count()];
                 whereFieldsArray = whereItemField.ToArray();
 
-                whereFieldPosition = to.findValuePosition(dbPath, useDB, tableName, whereFieldsArray);
-               
+                whereFieldPosition = to.FindValuePosition(dbPath, useDB, tableName, whereFieldsArray);
+
             }
 
             ArrayList returnRecords = new ArrayList();
             ArrayList columnPositions = new ArrayList();
             String[] columnNames = fieldsString.Split(',');
-            columnPositions = to.findValuePosition(dbPath, useDB, tableName, columnNames);
+            columnPositions = to.FindValuePosition(dbPath, useDB, tableName, columnNames);
             int blockPointer = 0;
             int recordPointer = 0;
 
@@ -459,16 +459,16 @@ namespace ToyDB
                 }
 
             }
-            returnRecords =SetColumnPosition(columnPositions, returnRecords);
+            returnRecords = SetColumnPosition(columnPositions, returnRecords);
             return returnRecords;
         }
 
 
 
-		
-	
 
-    public List<String> OperatorSplit(String whereFields)
+
+
+        public List<String> OperatorSplit(String whereFields)
         {
             List<String> whereColumnValue = new List<string>();
             if (whereFields.Contains("!="))
@@ -550,9 +550,190 @@ namespace ToyDB
                 }
                 arrayRecords.Add(TempList);
             }
-    
+
             return arrayRecords;
         }
 
+        public Object UpdateTableValues(String tableName, String setString, dynamic whereField)
+        {
+            String useDB = getDatabaseName();
+            TableStructure ts = null;
+            TableController tc = new TableController();
+            List<String> whereItemField = new List<string>();
+            ArrayList whereFieldPosition = null;
+            List<String> whereItemFieldList = null;
+            IFormatter formatter = new BinaryFormatter();
+
+            if (whereField !=null)
+            {
+                whereItemFieldList = OperatorSplit(whereField);
+
+                whereItemField.Add(whereItemFieldList[0]);
+                String[] whereFieldsArray = new String[whereItemField.Count];
+                whereFieldsArray = whereItemField.ToArray();
+
+                whereFieldPosition = tc.FindValuePosition(dbPath,useDB, tableName, whereFieldsArray);
+            }
+
+            ArrayList returnRecords = null;
+            ArrayList columnToSetPositions = new ArrayList();
+            String[] setColumnName = setString.Split('=');
+            columnToSetPositions = tc.FindValuePosition(dbPath,useDB, tableName, setColumnName);
+            int columnToSetPosition = int.Parse(columnToSetPositions[0].ToString());
+            String valueToSet = setColumnName[1].Replace("'", "");
+
+            foreach (int block in tc.GetBlock(dbPath, useDB, tableName))
+            {
+                returnRecords = new ArrayList();
+                String filePath = dbPath + useDB + "/" + tableName + "/" + block + ".obj";
+
+                try
+                {
+                    Stream stream = new FileStream(filePath,FileMode.Open, FileAccess.Read);
+                    ts = (TableStructure)formatter.Deserialize(stream);
+                    stream.Close();
+                }
+                catch (Exception ex) {
+                   Console.Write(ex.Message.ToString());
+                }
+
+                // ArrayList<String> returnRows = new ArrayList<String>();
+                foreach (ArrayList rows in ts.table)
+                {
+                    string ind = whereFieldPosition[0].ToString();
+                    string row = rows[int.Parse(ind)].ToString();
+                    string field = whereItemFieldList[1].ToString().TrimEnd(';');
+                    string newWhereField = whereField.ToString().TrimEnd(';');
+                    if (whereField !=null)
+                    {
+                        if (Operators(newWhereField, row, whereItemFieldList[1]))
+                        {
+                            rows.Insert(columnToSetPosition, valueToSet.ToString().TrimEnd(';'));
+                        }
+                    }
+                    else
+                    {
+                        rows.Insert(columnToSetPosition, valueToSet);
+                    }
+                    returnRecords.Add(rows);
+                }
+
+                ts.table = returnRecords;
+                try
+                {
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+
+                    Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Write);
+                    formatter.Serialize(stream,ts);
+                    stream.Close();
+                }
+                catch (Exception ex)
+                {
+                   Console.Write(ex.Message.ToString());
+                }
+               
+                }
+            return "Delete action completed";
+        }
+        public Object DeleteRecord(String tableName, dynamic whereField)
+        {
+            String useDB = getDatabaseName();
+            TableStructure ts = null;
+            TableController to = new TableController();
+            String filePath = "";
+            List<String> whereItemField = new List<String>();
+            ArrayList whereFieldPosition = null;
+            List<String> whereItemFieldList = new List<String>();
+            IFormatter formatter = new BinaryFormatter();
+
+            if (whereField!=null)
+            {
+                whereItemFieldList = OperatorSplit(whereField);
+
+                whereItemField.Add(whereItemFieldList[0].Trim());
+                String[] whereFieldsArray = new String[whereItemField.Count()];
+                whereFieldsArray = whereItemField.ToArray();
+
+                whereFieldPosition = to.FindValuePosition(dbPath, useDB, tableName, whereFieldsArray);
+            }
+            ArrayList blocks = to.GetBlock(dbPath,useDB, tableName);
+
+            //ArrayList<ArrayList<String>> returnRecords = new ArrayList<ArrayList<String>>();
+
+            foreach (int block in blocks)
+            {
+                // int newBlock = 0;
+                filePath = useDB + "/" + tableName + "/" + block + ".obj";
+                try
+                {
+                    Stream stream = new FileStream(filePath,FileMode.Open,FileAccess.Read);
+                    ts = (TableStructure)(formatter.Deserialize(stream));
+                    stream.Close();
+                }
+                catch (Exception ex) {
+                Console.Write(ex.Message.ToString());
+            }
+          
+            ArrayList rowsToBeDeleted = new ArrayList();
+            foreach (ArrayList rows in ts.table)
+            {
+                string ind = whereFieldPosition[0].ToString();
+                string row = rows[int.Parse(ind)].ToString();
+                string field = whereItemFieldList[1].ToString().TrimEnd(';');
+                string newWhereField = whereField.ToString().TrimEnd(';');
+
+                if (whereField!=null)
+                {
+                    if (Operators(whereField, row, whereItemFieldList[1]))
+                    {
+                        // returnRecords.add(rows);
+                        rowsToBeDeleted.Add(rows);
+
+                    }
+
+                }
+
+            }
+            ts.table.Remove(rowsToBeDeleted);
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                Stream stream = new FileStream(filePath,FileMode.Open, FileAccess.Write);
+                formatter.Serialize(stream, ts);
+                stream.Close();
+            }
+            catch (IOException e)
+            {
+                    Console.Write(e.Message.ToString());
+                
+            }
+            // if no where clause is present delete all the file in the sector
+        }
+
+		// add a new file if no where clause is present
+		if (!whereField!=null) {
+			try {
+				ts.table = null;
+				Stream stream = new FileStream(dbPath + useDB + "/" + tableName + "/" + 0 + ".obj", FileMode.Open,FileAccess.Write);
+                formatter.Serialize(stream,ts);
+                    stream.Close();
+			} catch (IOException ex) 
+            {
+				// TODO Auto-generated catch block
+			    Console.Write(ex.Message.ToString());
+			}
+		}
+		return "Row(s) deleted";
+
+	}
+
+         
+        }
     }
-}

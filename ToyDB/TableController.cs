@@ -154,7 +154,7 @@ namespace ToyDB
             return blockIDs;
         }
          
-	public ArrayList findValuePosition(String dbPath,String database, String tableName, String[] columnNames)
+	public ArrayList FindValuePosition(String dbPath,String database, String tableName, String[] columnNames)
         {
             SysColumns sc = null;
             // Integer position = 0;

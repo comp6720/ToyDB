@@ -68,11 +68,11 @@ namespace ToyDB
                     {
                         String setString = takeSetString.Split(new string[] {"where"}, StringSplitOptions.None)[0].Trim();
                         String whereString1 = sqlStatement.Split(new string[] {"where"}, StringSplitOptions.None)[1].Trim();
-                        returnedObject = (tableName1, setString, (whereString1));
+                        returnedObject = db.UpdateTableValues(tableName1, setString, (whereString1));
                     }
                     else
                     {
-                        returnedObject = (tableName1, takeSetString, " " );
+                        returnedObject = db.UpdateTableValues(tableName1, takeSetString, " " );
                     }
 
                     break;
