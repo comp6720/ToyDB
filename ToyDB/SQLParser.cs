@@ -27,33 +27,33 @@ namespace ToyDB
             switch (route.ToLower())
             {
                 case "delete":
-                    if (sqlStatement.Contains(" where "))
+                    if (sqlStatement.Contains("where"))
                     {
-                        String whereString = sqlStatement.Split(new string[] { "where" }, StringSplitOptions.None)[1].Trim(); 
-                        String statementWithoutWhereClause = sqlStatement.Split(new string[] { "where" }, StringSplitOptions.None)[1].Trim(); 
-                        String tableNamea = statementWithoutWhereClause.Split(new string[] { "from" }, StringSplitOptions.None)[1].Trim();
-                        returnedObject = (tableNamea,(whereString));
+                        String whereString = sqlStatement.Split(new string[] {"where"}, StringSplitOptions.None)[1].Trim(); 
+                        String statementWithoutWhereClause = sqlStatement.Split(new string[] {"where"}, StringSplitOptions.None)[0].Trim(); 
+                        String tableNamea = statementWithoutWhereClause.Split(new string[] {"from"}, StringSplitOptions.None)[1].Trim();
+                        returnedObject = db.DeleteRecord(tableNamea,(whereString));
                     }
                     else
                     {
-                        String tableName2 = sqlStatement.Split(new string[] { "from" }, StringSplitOptions.None)[1].Trim();
-                        returnedObject = (tableName2, "better");
+                        String tableName2 = sqlStatement.Split(new string[] {"from"}, StringSplitOptions.None)[1].Trim();
+                        returnedObject = db.DeleteRecord(tableName2, null);
                     }
 
                     break;
                 case "select":
-                    String tableName = sqlStatement.Split(new string[] { "from" }, StringSplitOptions.None)[1].Trim();
-                    String fieldsStringWithSelect = sqlStatement.Split(new string[] { "from" }, StringSplitOptions.None)[0].Trim();
+                    String tableName = sqlStatement.Split(new string[] {"from"}, StringSplitOptions.None)[1].Trim();
+                    String fieldsStringWithSelect = sqlStatement.Split(new string[] {"from"}, StringSplitOptions.None)[0].Trim();
                     String fieldsString = fieldsStringWithSelect.Replace("select", "");
                     if (sqlStatement.Contains("where"))
                     {
                         String whereString = sqlStatement.Split(new string[] {"where" }, StringSplitOptions.None)[1].Trim();
                         tableName = tableName.Split(' ')[0];
-                        returnedObject = (tableName, fieldsString, (whereString));
+                        returnedObject = db.SelectTableValues(tableName, fieldsString, (whereString));
                     }
                     else
                     {
-                        returnedObject = (tableName, fieldsString, " ");
+                        returnedObject = db.SelectTableValues(tableName, fieldsString,null);
                     }
 
                     break;

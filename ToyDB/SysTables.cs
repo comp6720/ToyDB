@@ -11,7 +11,7 @@ namespace ToyDB
     [Serializable]
     class SysTables
     { // Creating a HashSet of strings 
-        public HashSet<String> sys_table = new HashSet<String>();
+        public HashSet<String> sys_table = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
     }   
     
 }

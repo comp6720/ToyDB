@@ -112,10 +112,10 @@ namespace ToyDB
 
         }
 
-        public bool ValidTableName(String database, String tableName)
+        public bool ValidTableName(String dbPath,String database, String tableName)
         {
             IFormatter formatter = new BinaryFormatter();
-            String path = database + @"c:\ToyDB\ToyDB\ToyDBServer\Databases\sysdb\systable.ser";
+            String path = dbPath + database + "/sysdb/systable.obj";
             Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             SysTables st = null;
             bool validTable = false;
@@ -123,7 +123,7 @@ namespace ToyDB
             {
                 st = (SysTables)(formatter.Deserialize(stream));
                 Console.WriteLine(st);
-                validTable = st.sys_table.Contains(tableName);
+                validTable = st.sys_table.Contains(tableName);               
                 stream.Close();
             }
             catch (IOException)
@@ -138,6 +138,7 @@ namespace ToyDB
 
         public ArrayList GetBlock(String dbPath,String databaseName, String tableName)
         {
+
             String path = dbPath + databaseName + "/" + tableName;
             ArrayList blockIDs = new ArrayList();
            // string[] filePaths = Directory.GetFiles(@"c:\MyDir\");
@@ -152,5 +153,49 @@ namespace ToyDB
             blockIDs.Sort(null);
             return blockIDs;
         }
-    }
+         
+	public ArrayList findValuePosition(String dbPath,String database, String tableName, String[] columnNames)
+        {
+            SysColumns sc = null;
+            // Integer position = 0;
+            IFormatter formatter = new BinaryFormatter();
+            ArrayList columnPositions = new ArrayList();
+            if (ValidTableName(dbPath,database, tableName))
+            {
+                try
+                {
+                    Stream stream = new FileStream(dbPath + database + "/sysdb/syscolumns.obj",FileMode.Open,FileAccess.Read);
+                    //ObjectInputStream ois = new ObjectInputStream(fis);
+                    sc = (SysColumns)(formatter.Deserialize(stream));
+                
+                    for (int i = 0; i < columnNames.Length; i++)
+                    {
+                        String columnName = columnNames[i].Trim();
+                        int j = 0;
+                        foreach (ArrayList columns in sc.sys_column)
+                        {
+
+                            if (columns.Contains(tableName))
+                            {
+
+                                if (columns.Contains(columnName))
+                                {
+                                    columnPositions.Add(j);
+                                }
+                                j = j + 1;
+
+                            }
+                        }
+                    }                   
+                    stream.Close();
+                }
+                catch (IOException i) {
+                   
+                }
+                }
+
+                return columnPositions;
+
+            }
+        }
 }

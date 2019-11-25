@@ -51,8 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BTree.cs" />
     <Compile Include="ClientConnect.cs" />
     <Compile Include="DatabaseOperations.cs" />
+    <Compile Include="IndexStructure.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
